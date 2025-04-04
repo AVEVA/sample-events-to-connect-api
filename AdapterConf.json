@@ -1,0 +1,126 @@
+{
+  "EventsToCONNECTSampleAPIComponent": {
+    "Logging": {
+      "logLevel": "Trace",
+      "logFileSizeLimitBytes": 34636833,
+      "logFileCountLimit": 31
+    },
+    "DataSource": {
+      "endpoint": "https://localhost:7200/api/",
+      "healthController": "HealthCheck",
+      "failedRequestsController": "FailedRequests",
+      "apiKey": null,
+      "clientId": "<Auth0 Client Id>",
+      "clientSecret": "<Auth0 Client Secret>",
+      "tokenEndpoint": "https://<Auth0 Authority>/oauth/token",
+      "tokenAudience": "https://localhost:7200",
+      "scopes": [],
+      "validateEndpointCertificate": false,
+      "requestInterval": "01:00:00",
+      "utc": true,
+      "dataCollectionMode": "CurrentWithBackfill",
+      "backfillHistoricalData": false,
+      "backfillStartDateTime": null,
+      "streamIdPrefix": "MyStreamIdPrefix",
+      "defaultStreamIdPattern": "{SourceId}"
+    },
+    "DataSelection": [
+      {
+        "resourceId": "EventsResource",
+        "queryId": "TypeQuery",
+        "scheduleId": "Schedule001",
+        "type": "EventTypes",
+        "action": "Create",
+        "messageTypeField": "messageHeaders.messageType",
+        "messageTypeIdField": "messageHeaders.typeId",
+        "messageActionField": "messageHeaders.action",
+        "messageContinuationTokenField": "messageHeaders.continuationToken",
+        "messageValueField": "messageBody",
+        "selected": true,
+        "name": "EventTypeSelection",
+        "streamId": "EventTypeSelection.EventsResource",
+        "dataFilterId": null
+      },
+      {
+        "resourceId": "EventsResource",
+        "queryId": "SiteParameterQuery",
+        "scheduleId": "Schedule001",
+        "type": "Events",
+        "action": "Create",
+        "messageTypeField": "messageHeaders.messageType",
+        "messageTypeIdField": "messageHeaders.typeId",
+        "messageActionField": "messageHeaders.action",
+        "messageContinuationTokenField": "messageHeaders.continuationToken",
+        "messageValueField": "messageBody",
+        "selected": true,
+        "name": "EventDataSelection",
+        "streamId": "EventDataSelection.EventsResource",
+        "dataFilterId": null
+      },
+      {
+        "resourceId": "ReferenceDataResource",
+        "queryId": "TypeQuery",
+        "scheduleId": "Schedule001",
+        "type": "ReferenceDataTypes",
+        "action": "Create",
+        "messageTypeField": "messageHeaders.messageType",
+        "messageTypeIdField": "messageHeaders.typeId",
+        "messageActionField": "messageHeaders.action",
+        "messageContinuationTokenField": "messageHeaders.continuationToken",
+        "messageValueField": "messageBody",
+        "selected": true,
+        "name": "ReferenceDataTypeSelection",
+        "streamId": null,
+        "dataFilterId": null
+      },
+      {
+        "resourceId": "ReferenceDataResource",
+        "queryId": "BaseQuery",
+        "scheduleId": "Schedule001",
+        "type": "ReferenceData",
+        "action": "Create",
+        "messageTypeField": "messageHeaders.messageType",
+        "messageTypeIdField": "messageHeaders.typeId",
+        "messageActionField": "messageHeaders.action",
+        "messageContinuationTokenField": "messageHeaders.continuationToken",
+        "messageValueField": "messageBody",
+        "selected": true,
+        "name": "ReferenceDataSelection",
+        "streamId": null,
+        "dataFilterId": null
+      }
+    ],
+    "Schedules": [
+      {
+        "id": "Schedule001",
+        "period": "00:01:00",
+        "offset": "00:00:00"
+      }
+    ],
+    "Resources": [
+      {
+        "resourceId": "EventsResource",
+        "resourcePath": "events"
+      },
+      {
+        "resourceId": "ReferenceDataResource",
+        "resourcePath": "referencedata"
+      }
+    ],
+    "Queries": [
+      {
+        "queryId": "SiteParameterQuery",
+        "queryString": "?site="
+      },
+      {
+        "queryId": "TypeQuery",
+        "queryString": "/type"
+      },
+      {
+        "queryId": "BaseQuery",
+        "queryString": "/"
+      }
+    ],
+    "HistoryRecoveries": []
+  }
+}
