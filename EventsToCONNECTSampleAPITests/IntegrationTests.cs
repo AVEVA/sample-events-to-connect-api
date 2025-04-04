@@ -6,11 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventsToCONNECTAPISampleTests
 {
-    public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+    public class IntegrationTests : IClassFixture<TestWebApplicationFactory<Program>>
     {
         private HttpClient TestClient { get; set; }
 
-        public IntegrationTests(WebApplicationFactory<Program> factory)
+        public IntegrationTests(TestWebApplicationFactory<Program> factory)
         {
             ArgumentNullException.ThrowIfNull(factory);
 
