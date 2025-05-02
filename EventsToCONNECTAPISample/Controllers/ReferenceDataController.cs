@@ -10,10 +10,12 @@ namespace EventsToCONNECTAPISample.Controllers
     public class ReferenceDataController : ControllerBase
     {
         private string ReferenceDataTypeId { get; }
+        private string AuthorizationTagId { get; }
 
         public ReferenceDataController(IConfiguration configuration)
         {
-            ReferenceDataTypeId = configuration.GetValue("referenceDataTypeId", "EventsToCONNECT-ReferenceDataTypeId")!;
+            ReferenceDataTypeId = configuration.GetValue("referenceDataTypeId", "ReferenceDataTypeId-EventsToCONNECT")!;
+            AuthorizationTagId = configuration.GetValue("authorizationTagId", "AuthorizationTagId-EventsToCONNECT")!;
         }
 
         // GET: api/ReferenceData
@@ -80,7 +82,8 @@ namespace EventsToCONNECTAPISample.Controllers
             var typeDefinition = new TypeDefinition
             {
                 Id = ReferenceDataTypeId,
-                Name = ReferenceDataTypeId
+                Name = ReferenceDataTypeId,
+                DefaultAuthorizationTag = AuthorizationTagId
             };
 
             typeDefinition.Properties.AddRange([addressProperty, numEmployeesProperty]);

@@ -13,7 +13,7 @@ namespace EventsToCONNECTAPISample.Controllers
 
         public AssetsController(IConfiguration configuration)
         {
-            AssetTypeId = configuration.GetValue("assetTypeId", "EventsToCONNECT-AssetTypeId")!;
+            AssetTypeId = configuration.GetValue("assetTypeId", "AssetTypeId-EventsToCONNECT")!;
         }
 
         // GET: api/Assets

@@ -12,14 +12,14 @@ namespace EventsToCONNECTAPISample.Controllers
     {
         private string EventTypeId { get; }
         private string ReferenceDataTypeId { get; }
-        private string AssetTypeId { get; }
+        private string AuthorizationTagId { get; }
         private EventsService EventsService { get; }
 
         public EventsController(IConfiguration configuration, EventsService eventsService)
         {
-            EventTypeId = configuration.GetValue("eventTypeId", "EventsToCONNECT-EventTypeId")!;
-            ReferenceDataTypeId = configuration.GetValue("referenceDataTypeId", "EventsToCONNECT-ReferenceDataTypeId")!;
-            AssetTypeId = configuration.GetValue("assetTypeId", "EventsToCONNECT-AssetTypeId")!;
+            EventTypeId = configuration.GetValue("eventTypeId", "EventTypeId-EventsToCONNECT")!;
+            ReferenceDataTypeId = configuration.GetValue("referenceDataTypeId", "ReferenceDataTypeId-EventsToCONNECT")!;
+            AuthorizationTagId = configuration.GetValue("authorizationTagId", "AuthorizationTagId-EventsToCONNECT")!;
 
             EventsService = eventsService;
         }
@@ -84,7 +84,8 @@ namespace EventsToCONNECTAPISample.Controllers
             var typeDefinition = new TypeDefinition
             {
                 Id = EventTypeId,
-                Name = EventTypeId
+                Name = EventTypeId,
+                DefaultAuthorizationTag = AuthorizationTagId
             };
 
             typeDefinition.Properties.AddRange([statusProperty, siteProperty]);
