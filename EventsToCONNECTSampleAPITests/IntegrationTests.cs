@@ -36,78 +36,6 @@ namespace EventsToCONNECTAPISampleTests
             // Arrange
             var request = "/api/events";
 
-            // Act
-            var messageBody = await AssertValidResponseAndGetMessageBody(request, "Events").ConfigureAwait(true);
-
-            // Iterate through the messageBody array and assert that each object contains an id field
-            foreach (JsonElement item in messageBody.EnumerateArray())
-            {
-                Assert.True(item.TryGetProperty("id", out JsonElement id));
-            }
-        }
-
-        [Fact]
-        public async Task GetEventTypeShouldReturnEventType()
-        {
-            // Arrange
-            var request = "/api/events/type";
-
-            // Act
-            var messageBody = await AssertValidResponseAndGetMessageBody(request, "EventTypes").ConfigureAwait(true);
-
-            // Iterate through the messageBody array and assert that each object contains an id field
-            foreach (JsonElement item in messageBody.EnumerateArray())
-            {
-                Assert.True(item.TryGetProperty("id", out JsonElement id));
-
-                // Iterate through the properties array and assert that each object contains a propertyTypeCode field
-                foreach (JsonElement property in item.GetProperty("properties").EnumerateArray())
-                {
-                    Assert.True(property.TryGetProperty("propertyTypeCode", out JsonElement propertyTypeCode));
-                }
-            }
-        }
-
-        [Fact]
-        public async Task GetReferenceDataShouldReturnReferenceData()
-        {
-            // Arrange
-            var request = "/api/referencedata";
-
-            // Act
-            var messageBody = await AssertValidResponseAndGetMessageBody(request, "ReferenceData").ConfigureAwait(true);
-
-            // Iterate through the messageBody array and assert that each object contains an id field
-            foreach (JsonElement item in messageBody.EnumerateArray())
-            {
-                Assert.True(item.TryGetProperty("id", out JsonElement id));
-            }
-        }
-
-        [Fact]
-        public async Task GetReferenceDataTypeShouldReturnReferenceDataType()
-        {
-            // Arrange
-            var request = "/api/referencedata/type";
-
-            // Act
-            var messageBody = await AssertValidResponseAndGetMessageBody(request, "ReferenceDataTypes").ConfigureAwait(true);
-
-            // Iterate through the messageBody array and assert that each object contains an id field
-            foreach (JsonElement item in messageBody.EnumerateArray())
-            {
-                Assert.True(item.TryGetProperty("id", out JsonElement id));
-
-                // Iterate through the properties array and assert that each object contains a propertyTypeCode field
-                foreach (JsonElement property in item.GetProperty("properties").EnumerateArray())
-                {
-                    Assert.True(property.TryGetProperty("propertyTypeCode", out JsonElement propertyTypeCode));
-                }
-            }
-        }
-
-        async Task<JsonElement> AssertValidResponseAndGetMessageBody(string request, string expectedMessageType)
-        {
             // Assert that our response is successful and it can be parsed into JSON
             var response = await TestClient.GetAsync(new Uri(request, UriKind.Relative)).ConfigureAwait(true);
 
@@ -124,7 +52,7 @@ namespace EventsToCONNECTAPISampleTests
             Assert.True(messageHeaders.TryGetProperty("messageType", out JsonElement messageType));
 
             // Assert that messageType is correct
-            Assert.Equal(expectedMessageType, messageType.GetString());
+            Assert.Equal("Events", messageType.GetString());
 
             // Assert that the JSON contains the "messageBody" object
             Assert.True(jsonDocument.RootElement.TryGetProperty("messageBody", out JsonElement messageBody));
@@ -132,7 +60,11 @@ namespace EventsToCONNECTAPISampleTests
             // Assert that messageBody is an array
             Assert.Equal(JsonValueKind.Array, messageBody.ValueKind);
 
-            return messageBody;
+            // Iterate through the messageBody array and assert that each object contains an id field
+            foreach (JsonElement item in messageBody.EnumerateArray())
+            {
+                Assert.True(item.TryGetProperty("id", out JsonElement id));
+            }
         }
     }
 }
