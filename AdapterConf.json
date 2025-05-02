@@ -70,7 +70,7 @@
         "messageValueField": "messageBody",
         "selected": true,
         "name": "ReferenceDataTypeSelection",
-        "streamId": null,
+        "streamId": "ReferenceDataTypeSelection.ReferenceDataResource",
         "dataFilterId": null
       },
       {
@@ -86,6 +86,54 @@
         "messageValueField": "messageBody",
         "selected": true,
         "name": "ReferenceDataSelection",
+        "streamId": "ReferenceDataSelection.ReferenceDataResource",
+        "dataFilterId": null
+      },
+      {
+        "resourceId": "AssetsResource",
+        "queryId": "TypeQuery",
+        "scheduleId": "Schedule001",
+        "type": "AssetTypes",
+        "action": "Create",
+        "messageTypeField": "messageHeaders.messageType",
+        "messageTypeIdField": "messageHeaders.typeId",
+        "messageActionField": "messageHeaders.action",
+        "messageContinuationTokenField": "messageHeaders.continuationToken",
+        "messageValueField": "messageBody",
+        "selected": true,
+        "name": "AssetTypeSelection",
+        "streamId": null,
+        "dataFilterId": null
+      },
+      {
+        "resourceId": "AssetsResource",
+        "queryId": "BaseQuery",
+        "scheduleId": "Schedule001",
+        "type": "Assets",
+        "action": "Create",
+        "messageTypeField": "messageHeaders.messageType",
+        "messageTypeIdField": "messageHeaders.typeId",
+        "messageActionField": "messageHeaders.action",
+        "messageContinuationTokenField": "messageHeaders.continuationToken",
+        "messageValueField": "messageBody",
+        "selected": true,
+        "name": "AssetsSelection",
+        "streamId": null,
+        "dataFilterId": null
+      },
+      {
+        "resourceId": "AuthorizationTagsResource",
+        "queryId": "BaseQuery",
+        "scheduleId": "Schedule001",
+        "type": "AuthorizationTags",
+        "action": "Create",
+        "messageTypeField": "messageHeaders.messageType",
+        "messageTypeIdField": "messageHeaders.typeId",
+        "messageActionField": "messageHeaders.action",
+        "messageContinuationTokenField": "messageHeaders.continuationToken",
+        "messageValueField": "messageBody",
+        "selected": true,
+        "name": "AuthorizationTagsSelection",
         "streamId": null,
         "dataFilterId": null
       }
@@ -105,6 +153,14 @@
       {
         "resourceId": "ReferenceDataResource",
         "resourcePath": "referencedata"
+      },
+      {
+        "resourceId": "AssetsResource",
+        "resourcePath": "assets"
+      },
+      {
+        "resourceId": "AuthorizationTagsResource",
+        "resourcePath": "authorizationtags"
       }
     ],
     "Queries": [
