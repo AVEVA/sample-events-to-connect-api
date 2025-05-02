@@ -2,8 +2,6 @@
 
 **Version:** 1.0.0
 
-(Build Status)
-
 Built with:
 - DotNet 8
 - Visual Studio 2022 - 17.12.4
@@ -13,7 +11,7 @@ As noted in the [AVEVA Events to CONNECT adapter documentation](https://docs.ave
 
 This is a sample API that follows the implementation outlined in the [documentation.](https://docs.aveva.com/bundle/events-to-connect/page/1252278.html) The adapter is designed to call an Auth0-protected REST API that returns events, types, and other context in a specific format. 
 
-Below is an example of a message returned by this sample API that describes the creation of 3 events of type ID "EventsToCONNECTEventType1". It includes a `messageHeaders` object that specifies the type of message, action, format, and typeId. The `messageBody` contains 3 events each having a value for the properties "site" and "sample".
+Below is an example of a message returned by this sample API that describes the creation of events of type ID "PumpStatus-EventsToCONNECT". It includes a `messageHeaders` object that specifies the type of message, action, format, and typeId. The `messageBody` contains 2 events, each having a value for the properties "pumpStatus", "site", and "asset".
 
 GET https://localhost:7200/api/events
 
@@ -23,35 +21,38 @@ GET https://localhost:7200/api/events
     "messageType": "Events",
     "action": "Create",
     "format": "Json",
-    "typeId": "EventsToCONNECTEventType1"
+    "typeId": "PumpStatus-EventsToCONNECT"
   },
   "messageBody": [
     {
-      "id": "Site1_20250325-102742",
-      "site": "Site1",
-      "startTime": "2025-03-25T09:27:42.5343421-07:00",
-      "endTime": "2025-03-25T10:27:42.5343421-07:00",
-      "sample": "86.45690309960744"
+      "id": "Pump1-On-20250502132902-EventsToCONNECT",
+      "startTime": "2025-05-02T13:29:02.3227031-07:00",
+      "endTime": "2025-05-02T14:29:02.3227052-07:00",
+      "pumpStatus": "On",
+      "site": {
+        "id": "Site1-EventsToCONNECT"
+      },
+      "asset": {
+        "id": "Pump1-EventsToCONNECT"
+      }
     },
     {
-      "id": "Site2_20250325-102742",
-      "site": "Site2",
-      "startTime": "2025-03-25T09:27:42.5343421-07:00",
-      "endTime": "2025-03-25T10:27:42.5343421-07:00",
-      "sample": "16.311309798923702"
-    },
-    {
-      "id": "Site3_20250325-102742",
-      "site": "Site3",
-      "startTime": "2025-03-25T09:27:42.5343421-07:00",
-      "endTime": "2025-03-25T10:27:42.5343421-07:00",
-      "sample": "22.43178107956205"
+      "id": "Pump2-Off-20250502132902-EventsToCONNECT",
+      "startTime": "2025-05-02T13:29:02.3227031-07:00",
+      "endTime": "2025-05-02T14:29:02.3227052-07:00",
+      "pumpStatus": "Off",
+      "site": {
+        "id": "Site2-EventsToCONNECT"
+      },
+      "asset": {
+        "id": "Pump2-EventsToCONNECT"
+      }
     }
   ]
 }
 ```
 
-Below is a message returned by the API that dictates creation of event type "EventsToCONNECTEventType1":
+Below is a message returned by the API that dictates creation of event type "PumpStatus-EventsToCONNECT":
 
 GET https://localhost:7200/api/events/eventtype
 
@@ -61,24 +62,25 @@ GET https://localhost:7200/api/events/eventtype
     "messageType": "EventTypes",
     "action": "Create",
     "format": "Json",
-    "typeId": null
+    "typeId": "PumpStatus-EventsToCONNECT"
   },
   "messageBody": [
     {
-      "id": "EventsToCONNECTEventType1",
-      "name": null,
+      "id": "PumpStatus-EventsToCONNECT",
+      "name": "PumpStatus-EventsToCONNECT",
+      "defaultAuthorizationTag": "PumpOperator-EventsToCONNECT",
       "properties": [
         {
           "propertyTypeCode": "String",
-          "id": "Sample",
-          "name": null,
-          "state": null
+          "id": "PumpStatus",
+          "name": "PumpStatus",
+          "propertyTypeId": null
         },
         {
-          "propertyTypeCode": "String",
+          "propertyTypeCode": "ReferenceData",
           "id": "Site",
-          "name": null,
-          "state": null
+          "name": "Site",
+          "propertyTypeId": "Site-EventsToCONNECT"
         }
       ]
     }
@@ -91,8 +93,9 @@ GET https://localhost:7200/api/events/eventtype
 The sample API is built to be as simple as possible while meeting each of the requirements of the Events to CONNECT Adapter, laying groundwork that can be expanded upon to reach more data sources and output the expected messages. It uses standard practices for building .NET API applications, including simple and secure authentication with standard Microsoft libraries.
 ### API Implementation: EventsController
 
-The `EventsController` controller holds the API controller actions. the `Get()` action returns a response message that includes the expected header and body. The body includes a list of `EventMessageBody` which we get from `EventsService.Events`, optionally filtered for site if the "site" parameter is not empty.
+The `EventsController` controller holds the API controller actions. the `Get()` action returns a response message that includes the expected header and body. The body includes a list of `EventMessageBody` which we get from `EventsService.Events`, optionally filtered by site ID if the "site" parameter is not empty.
 
+**Controllers/EventsController.cs**
 ```cs
 // GET: api/Events
 [HttpGet]
@@ -103,18 +106,18 @@ public IActionResult Get(string site="")
         MessageType = "Events",
         Action = "Create",
         Format = "Json",
-        TypeId = _eventTypeId
+        TypeId = EventTypeId
     };
 
-    List<EventMessageBody> events;
+    List<PumpEvent> events;
 
     if (!string.IsNullOrEmpty(site))
     {
-        events = _eventsService.Events.Where(e => e.Site.Equals(site)).ToList();
+        events = EventsService.Events.Where(e => e.Site?.Id?.Contains(site) ?? false).ToList();
     }
     else
     {
-        events = _eventsService.Events;
+        events = EventsService.Events;
     }
 
     return Ok(new
@@ -128,26 +131,39 @@ public IActionResult Get(string site="")
 
 The sample API's `EventsService` maintains a list of events, written as "EventMessageBody" objects. Every time `GetEvents()` is called, which happens on a 1 hour timer, it clears the events list and simply adds 3 new events for Site1, Site2, and Site3, each with a random value for "sample". The events start 1 hour in the past and end at current time.
 
+**Services/EventsService.cs**
 ```cs
 private void GetEvents()
 {
-    Events.Clear();
+    var startTime = DateTime.Now.AddHours(-1);
+    var endTime = DateTime.Now;
 
-    var currentTime = DateTime.Now;
-
-    for (int i = 1; i <= 3; i++)
+    PumpEvent pump1Event = new PumpEvent
     {
-        string site = "Site" + i;
+        Id = $"Pump1-{(Pump1_On ? "On" : "Off")}-{startTime:yyyyMMddHHmmss}-EventsToCONNECT",
+        PumpStatus = Pump1_On ? "On" : "Off",
+        StartTime = startTime,
+        EndTime = endTime,
+        Site = new Reference { Id = "Site1-EventsToCONNECT" },
+        Asset = new Reference { Id = "Pump1-EventsToCONNECT" }
+    };
 
-        Events.Add(new EventMessageBody
-        {
-            Id = $"{site}_{currentTime:yyyyMMdd-HHmmss}",
-            Site = site,
-            StartTime = currentTime.AddHours(-1),
-            EndTime = currentTime,
-            Sample = (Random.Shared.NextDouble() * 100).ToString()
-        });
-    }
+    PumpEvent pump2Event = new PumpEvent
+    {
+        Id = $"Pump2-{(Pump2_On ? "On" : "Off")}-{startTime:yyyyMMddHHmmss}-EventsToCONNECT",
+        PumpStatus = Pump2_On ? "On" : "Off",
+        StartTime = startTime,
+        EndTime = endTime,
+        Site = new Reference { Id = "Site2-EventsToCONNECT" },
+        Asset = new Reference { Id = "Pump2-EventsToCONNECT" }
+    };
+
+    Events.Clear();
+    Events.Add(pump1Event); 
+    Events.Add(pump2Event);
+
+    Pump1_On = !Pump1_On;
+    Pump2_On = !Pump2_On;
 }
 ```
 
@@ -155,43 +171,49 @@ This part of the sample simulates getting data from a data source. This would be
 
 ### Expanding on the event type
 
-The `EventMessageBody` can include a number of custom properties that slot into properties of the event type on CONNECT Data Services. To have the event type automatically created with the custom properties, they need to be included in the "api/Events/EventType" action. The sample has an event type that includes 2 custom string properties named "Sample" and "Site". Created EventTypes will also have the [base event type properties.](https://docs.aveva.com/bundle/connect-data-services-developer/page/api-reference/event-type-store/event-type-store-event-types.html)
+The `EventMessageBody` can include a number of custom properties that slot into properties of the event type on CONNECT Data Services. To have the event type automatically created with the custom properties, they need to be included in the "api/Events/EventType" action. The sample has an event type that includes the custom string property named "PumpStatus" and reference data named "Site". Created EventTypes will also have the [base event type properties.](https://docs.aveva.com/bundle/connect-data-services-developer/page/api-reference/event-type-store/event-type-store-event-types.html)
 
 ```cs
-// GET: api/Events/EventType
-[HttpGet("EventType")]
+// GET: api/Events/Type
+[HttpGet("Type")]
 public IActionResult GetEventType()
 {
     var header = new MessageHeader
     {
         MessageType = "EventTypes",
         Action = "Create",
-        Format = "Json"
+        Format = "Json",
+        TypeId = EventTypeId
     };
 
-    var sampleProperty = new PropertyDefinition
+    var statusProperty = new PropertyDefinition
     {
-        Id = "Sample",
+        Id = "PumpStatus",
+        Name = "PumpStatus",
         PropertyTypeCode = "String"
     };
 
     var siteProperty = new PropertyDefinition
     {
         Id = "Site",
-        PropertyTypeCode = "String"
-
+        Name = "Site",
+        PropertyTypeCode = "ReferenceData",
+        PropertyTypeId = ReferenceDataTypeId
     };
 
-    var body = new EventTypeMessageBody
+    var typeDefinition = new TypeDefinition
     {
-        Id = _eventTypeId,
-        Properties = [ sampleProperty, siteProperty ]
+        Id = EventTypeId,
+        Name = EventTypeId,
+        DefaultAuthorizationTag = AuthorizationTagId
     };
+
+    typeDefinition.Properties.AddRange([statusProperty, siteProperty]);
 
     return Ok(new
     {
         MessageHeaders = header,
-        MessageBody = new EventTypeMessageBody[] { body }
+        MessageBody = new[] { typeDefinition }
     });
 }
 ```
@@ -203,10 +225,12 @@ The sample includes an `appsettings.placeholder.json` file that needs to be fill
 {
   "auth0": {
     "Authority": "https://<Auth0 Authority>.com/",
-    "Audience": "http://localhost:5000"
+    "Audience": "https://localhost:7200"
   },
-  "eventTypeId": "EventsToCONNECTEventType1",
-  "referenceDataTypeId": "EventsToCONNECTReferenceDataType1",
+  "eventTypeId": "PumpStatus-EventsToCONNECT",
+  "referenceDataTypeId": "Site-EventsToCONNECT",
+  "assetTypeId": "Pump-EventsToCONNECT",
+  "authorizationTagId": "PumpOperator-EventsToCONNECT",
   "Logging": {
     "LogLevel": {
       "Default": "Information",
@@ -220,9 +244,11 @@ The sample includes an `appsettings.placeholder.json` file that needs to be fill
 | Setting             | Description                                                                                                                                                                                         |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | auth0.Authority      | The Auth0 URL to use for authentication.                                                                                                                                                            |
-| auth0.Audience<br> | The Auth0 audience to limit/scope our tokens to our API application.                                                                                                                                |
+| auth0.Audience      | The Auth0 audience to limit/scope our tokens to our API application.                                                                                                                                |
 | eventTypeId         | A type ID the adapter will use for creating the event type. |
 | referenceDataTypeId   | A type ID the adapter will use for creating the reference data type.  |
+| assetTypeId   | A type ID the adapter will use for creating the asset type.  |
+| authorizationTagId   | An ID the adapter will use for creating the authorization tag.  |
 
 
 ## Auth0 Setup
@@ -256,7 +282,7 @@ After the ingress component is imported and configured, the [adapter must be con
 Once fully configured, the adapter automatically handles the following:
 
 1. Authentication to CONNECT
-2. It runs each "data selection" every time as scheduled, polling the API events, reference data, and types and sending the corresponding OMF messages to CONNECT to actually create everything
+2. It runs each "data selection" every time as scheduled, polling the API events, assets, reference data, and authorization tags and sending the corresponding OMF messages to CONNECT to actually create everything
 3. It logs any failed requests to the API to the "FailedRequests" controller
 4. It queries the "HealthCheck" controller to check the health of the API (in our case, the API only ever says it's healthy)
 
