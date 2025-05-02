@@ -37,24 +37,16 @@ namespace EventsToCONNECTAPISample.Controllers
 
             var site1 = new SiteReferenceData
             {
-                Id = "Site1",
+                Id = "Site1-EventsToCONNECT",
                 Name = "Site1",
-                Address = "164 S Industry Blvd.",
-                NumEmployees = "236",
+                Address = "528 N Dream Blvd.",
+                NumEmployees = "491",
             };
 
             var site2 = new SiteReferenceData
             {
-                Id = "Site2",
+                Id = "Site2-EventsToCONNECT",
                 Name = "Site2",
-                Address = "570 W Evans St.",
-                NumEmployees = "1218",
-            };
-
-            var site3 = new SiteReferenceData
-            {
-                Id = "Site3",
-                Name = "Site3",
                 Address = "308 N Arroyo Ln.",
                 NumEmployees = "737",
             };
@@ -62,7 +54,7 @@ namespace EventsToCONNECTAPISample.Controllers
             return Ok(new
             {
                 MessageHeaders = header,
-                MessageBody = new[] { site1, site2, site3 }
+                MessageBody = new[] { site1, site2 }
             });
         }
 

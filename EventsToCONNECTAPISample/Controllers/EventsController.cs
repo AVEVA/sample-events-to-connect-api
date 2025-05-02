@@ -12,10 +12,13 @@ namespace EventsToCONNECTAPISample.Controllers
     {
         private string EventTypeId { get; }
         private string ReferenceDataTypeId { get; }
+        private string AssetTypeId { get; }
         private EventsService EventsService { get; }
 
         public EventsController(IConfiguration configuration, EventsService eventsService)
         {
+            EventsService = eventsService;
+
             var eventTypeId = configuration.GetValue<string>("eventTypeId");
 
             if (string.IsNullOrEmpty(eventTypeId))
@@ -34,7 +37,14 @@ namespace EventsToCONNECTAPISample.Controllers
 
             ReferenceDataTypeId = referenceDataTypeId;
 
-            EventsService = eventsService;
+            var assetTypeId = configuration.GetValue<string>("assetTypeId");
+
+            if (string.IsNullOrEmpty(assetTypeId))
+            {
+                throw new MissingFieldException("Missing assetTypeId from appsettings.json!");
+            }
+
+            AssetTypeId = assetTypeId;
         }
 
         // GET: api/Events
@@ -49,7 +59,7 @@ namespace EventsToCONNECTAPISample.Controllers
                 TypeId = EventTypeId
             };
 
-            List<SampleEvent> events;
+            List<PumpEvent> events;
 
             if (!string.IsNullOrEmpty(site))
             {
@@ -86,6 +96,14 @@ namespace EventsToCONNECTAPISample.Controllers
                 PropertyTypeCode = "String"
             };
 
+            var pumpProperty = new PropertyDefinition
+            {
+                Id = "Pump",
+                Name = "Pump",
+                PropertyTypeCode = "Asset",
+                PropertyTypeId = AssetTypeId
+            };
+
             var siteProperty = new PropertyDefinition
             {
                 Id = "Site",
@@ -100,7 +118,7 @@ namespace EventsToCONNECTAPISample.Controllers
                 Name = EventTypeId
             };
 
-            typeDefinition.Properties.AddRange([sampleProperty, siteProperty]);
+            typeDefinition.Properties.AddRange([sampleProperty, pumpProperty, siteProperty]);
 
             return Ok(new
             {
