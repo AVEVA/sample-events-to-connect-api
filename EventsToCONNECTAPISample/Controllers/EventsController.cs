@@ -17,34 +17,11 @@ namespace EventsToCONNECTAPISample.Controllers
 
         public EventsController(IConfiguration configuration, EventsService eventsService)
         {
+            EventTypeId = configuration.GetValue("eventTypeId", "EventsToCONNECT-EventTypeId")!;
+            ReferenceDataTypeId = configuration.GetValue("referenceDataTypeId", "EventsToCONNECT-ReferenceDataTypeId")!;
+            AssetTypeId = configuration.GetValue("assetTypeId", "EventsToCONNECT-AssetTypeId")!;
+
             EventsService = eventsService;
-
-            var eventTypeId = configuration.GetValue<string>("eventTypeId");
-
-            if (string.IsNullOrEmpty(eventTypeId))
-            {
-                throw new MissingFieldException("Missing eventTypeId from appsettings.json!");
-            }
-
-            EventTypeId = eventTypeId;
-
-            var referenceDataTypeId = configuration.GetValue<string>("referenceDataTypeId");
-
-            if (string.IsNullOrEmpty(referenceDataTypeId))
-            {
-                throw new MissingFieldException("Missing referenceDataTypeId from appsettings.json!");
-            }
-
-            ReferenceDataTypeId = referenceDataTypeId;
-
-            var assetTypeId = configuration.GetValue<string>("assetTypeId");
-
-            if (string.IsNullOrEmpty(assetTypeId))
-            {
-                throw new MissingFieldException("Missing assetTypeId from appsettings.json!");
-            }
-
-            AssetTypeId = assetTypeId;
         }
 
         // GET: api/Events

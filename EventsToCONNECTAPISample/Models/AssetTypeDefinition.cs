@@ -1,6 +1,6 @@
 ﻿namespace EventsToCONNECTAPISample.Models
 {
-    public class AssetDefinition
+    public class AssetTypeDefinition
     {
         public string? Id { get; set; }
         public string? Name { get; set; }

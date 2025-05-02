@@ -13,14 +13,7 @@ namespace EventsToCONNECTAPISample.Controllers
 
         public AssetsController(IConfiguration configuration)
         {
-            var assetTypeId = configuration.GetValue<string>("assetTypeId");
-
-            if (string.IsNullOrEmpty(assetTypeId))
-            {
-                throw new MissingFieldException("Missing assetTypeId from appsettings.json!");
-            }
-
-            AssetTypeId = assetTypeId;
+            AssetTypeId = configuration.GetValue("assetTypeId", "EventsToCONNECT-AssetTypeId")!;
         }
 
         // GET: api/Assets
@@ -106,7 +99,7 @@ namespace EventsToCONNECTAPISample.Controllers
                 SdsTypeCode = SdsTypeCodes.SdsString
             };
 
-            var assetDefinition = new AssetDefinition
+            var assetDefinition = new AssetTypeDefinition
             {
                 Id = AssetTypeId,
                 Name = AssetTypeId,

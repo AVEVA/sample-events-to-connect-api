@@ -13,14 +13,7 @@ namespace EventsToCONNECTAPISample.Controllers
 
         public ReferenceDataController(IConfiguration configuration)
         {
-            var referenceDataTypeId = configuration.GetValue<string>("referenceDataTypeId");
-
-            if (string.IsNullOrEmpty(referenceDataTypeId))
-            {
-                throw new MissingFieldException("Missing referenceDataTypeId from appsettings.json!");
-            }
-
-            ReferenceDataTypeId = referenceDataTypeId;
+            ReferenceDataTypeId = configuration.GetValue("referenceDataTypeId", "EventsToCONNECT-ReferenceDataTypeId")!;
         }
 
         // GET: api/ReferenceData
