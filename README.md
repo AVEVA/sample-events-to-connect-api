@@ -1,3 +1,5 @@
+# Events to CONNECT Adapter Sample API
+
 ## About this sample
 
 **Version:** 1.0.0
@@ -9,7 +11,95 @@ Built with:
 
 As noted in the [AVEVA Events to CONNECT adapter documentation](https://docs.aveva.com/bundle/events-to-connect/page/1252276.html): To publish the types and events in CONNECT data services by using AVEVA Events to CONNECT, **you must create a REST API endpoint.**
 
-This is a sample API that follows the implementation outlined in the [documentation.](https://docs.aveva.com/bundle/events-to-connect/page/1252278.html) The adapter is designed to call an Auth0-protected REST API that returns events, types, and other context in a specific format. 
+This is a sample API that follows the [implementation outlined in the documentation.](https://docs.aveva.com/bundle/events-to-connect/page/1252278.html) The adapter is designed to call an Auth0-protected REST API that returns events, types, and other context in a specific format.  Is built to be as simple as possible while meeting each of the requirements of the Events to CONNECT Adapter, laying groundwork that can be expanded upon to reach more data sources and output the expected messages. It uses standard practices for building .NET API applications, including simple and secure authentication with standard Microsoft libraries.
+
+# How to run this sample
+
+1. Register a web API application on the identity provider Auth0
+2. Copy and fill out `appsettings.placeholder.json`
+3. Prepare the AVEVA Events to CONNECT Adapter by importing the including config file `AdapterConf.json` and then configuring egress to CONNECT
+4. Open the solution in Visual Studio, and then run the configuration "https". This will serve the API locally on your machine
+
+### Serving the API long-term
+
+Since the sample is a .NET API application, it can be hosted using IIS web server. Open the project in Visual Studio and publish it to your IIS server by clicking "Build" - "Publish "EventsToCONNECTAPISample" and following the wizard.
+
+### Testing the sample
+
+The sample includes unit and integration tests to validate its functionality. The tests can be run from the Visual Studio Test menu (Test > Run all tests). 
+
+## Appsettings.json
+
+The sample includes an `appsettings.placeholder.json` file that needs to be filled out and renamed to `appsettings.json`:
+
+```json
+{
+  "auth0": {
+    "Authority": "https://<Auth0 Authority>.com/",
+    "Audience": "https://localhost:7200"
+  },
+  "eventTypeId": "PumpStatus-EventsToCONNECT",
+  "referenceDataTypeId": "Site-EventsToCONNECT",
+  "assetTypeId": "Pump-EventsToCONNECT",
+  "authorizationTagId": "PumpOperator-EventsToCONNECT",
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
+```
+
+| Setting             | Description                                                                                                                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth0.Authority      | The Auth0 URL to use for authentication.                                                                                                                                                            |
+| auth0.Audience      | The Auth0 audience to limit/scope our tokens to our API application.                                                                                                                                |
+| eventTypeId         | A type ID the adapter will use for creating the event type. |
+| referenceDataTypeId   | A type ID the adapter will use for creating the reference data type.  |
+| assetTypeId   | A type ID the adapter will use for creating the asset type.  |
+| authorizationTagId   | An ID the adapter will use for creating the authorization tag.  |
+
+## Adapter Configuration
+
+Import the included `AdapterConf.json` file to the Adapter Configurator utility. This will import a data ingress component that will work with the sample API, after the Auth0 endpoint and credentials are entered. 
+
+![image](https://github.com/user-attachments/assets/f1bd9d27-66fa-4e3c-a842-78113a33db94)
+
+Replace the Token Endpoint with the Auth0 authority, and paste in the client ID and client secret from the Auth0 application. The endpoint can be changed if the API is not being run on the same machine as the Adapter.
+
+For more information on the Data Source configuration, check out the documentation: [Configure AVEVA Events to CONNECT data source using the Configurator plugin](https://docs.aveva.com/bundle/events-to-connect/page/1236323.html)
+
+### Data Egress
+
+After the ingress component is imported and configured, the [adapter must be configured for data egress to CONNECT.](https://docs.aveva.com/bundle/events-to-connect/page/1252608.html)
+
+### Adapter Operation
+
+Once fully configured, the adapter automatically handles the following:
+
+1. Authentication to CONNECT
+2. It runs each "data selection" every time as scheduled, polling the API events, assets, reference data, and authorization tags and sending the corresponding OMF messages to CONNECT to actually create everything
+3. It logs any failed requests to the API to the "FailedRequests" controller
+4. It queries the "HealthCheck" controller to check the health of the API (in our case, the API only ever says it's healthy)
+
+
+## Auth0 Setup
+
+For this sample, on [auth0.com](https://auth0.com) we register an API named "EventsToCONNECTSampleAPI" and a client application that is authorized to use it named "EventsToCONNECTSampleAPI Client". 
+
+To register an API and corresponding client application on Auth0, first follow the Auth0 documentation for registering an API: [Register APIs](https://auth0.com/docs/get-started/auth0-overview/set-up-apis). The "Identifier" will be the URL of our API (https://localhost:7200). Step 3 can be skipped since it was already completed in this sample project. 
+
+After that, create a Machine to Machine application that has permissions to access the registered API: [Register Machine-to-Machine Applications](https://auth0.com/docs/get-started/auth0-overview/create-applications/machine-to-machine-apps). Note that the API has no scopes that need configuring, so there won't be any listed in the "Authorize Machine to Machine Application" step.
+
+![Pasted image 20250325115429](https://github.com/user-attachments/assets/f690fc16-3e8f-4c6b-9bdd-3a4eaef6f7e4)
+
+The "Domain" field contains the value we will use for the "Authority" setting in `appsettings.json`. The Client ID will be used in the Adapter Data Source client ID setting, same with the secret. The "Token Audience" data source setting will be the "Identifier" we specified in Auth0, which comes in the bearer token and is for the receiving application (in our case, the sample API) to validate that the token is scoped correctly for it.
+
+___
+
+## Sample API Details
 
 Below is an example of a message returned by this sample API that describes the creation of events of type ID "PumpStatus-EventsToCONNECT". It includes a `messageHeaders` object that specifies the type of message, action, format, and typeId. The `messageBody` contains 2 events, each having a value for the properties "pumpStatus", "site", and "asset".
 
@@ -88,9 +178,6 @@ GET https://localhost:7200/api/events/eventtype
 }
 ```
 
-## Sample API Details
-
-The sample API is built to be as simple as possible while meeting each of the requirements of the Events to CONNECT Adapter, laying groundwork that can be expanded upon to reach more data sources and output the expected messages. It uses standard practices for building .NET API applications, including simple and secure authentication with standard Microsoft libraries.
 ### API Implementation: EventsController
 
 The `EventsController` controller holds the API controller actions. the `Get()` action returns a response message that includes the expected header and body. The body includes a list of `EventMessageBody` which we get from `EventsService.Events`, optionally filtered by site ID if the "site" parameter is not empty.
@@ -217,83 +304,3 @@ public IActionResult GetEventType()
     });
 }
 ```
-## Appsettings.json
-
-The sample includes an `appsettings.placeholder.json` file that needs to be filled out and renamed to `appsettings.json`:
-
-```json
-{
-  "auth0": {
-    "Authority": "https://<Auth0 Authority>.com/",
-    "Audience": "https://localhost:7200"
-  },
-  "eventTypeId": "PumpStatus-EventsToCONNECT",
-  "referenceDataTypeId": "Site-EventsToCONNECT",
-  "assetTypeId": "Pump-EventsToCONNECT",
-  "authorizationTagId": "PumpOperator-EventsToCONNECT",
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*"
-}
-```
-
-| Setting             | Description                                                                                                                                                                                         |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth0.Authority      | The Auth0 URL to use for authentication.                                                                                                                                                            |
-| auth0.Audience      | The Auth0 audience to limit/scope our tokens to our API application.                                                                                                                                |
-| eventTypeId         | A type ID the adapter will use for creating the event type. |
-| referenceDataTypeId   | A type ID the adapter will use for creating the reference data type.  |
-| assetTypeId   | A type ID the adapter will use for creating the asset type.  |
-| authorizationTagId   | An ID the adapter will use for creating the authorization tag.  |
-
-
-## Auth0 Setup
-
-For this sample, on [auth0.com](https://auth0.com) we register an API named "EventsToCONNECTSampleAPI" and a client application that is authorized to use it named "EventsToCONNECTSampleAPI Client". 
-
-To register an API and corresponding client application on Auth0, first follow the Auth0 documentation for registering an API: [Register APIs](https://auth0.com/docs/get-started/auth0-overview/set-up-apis). The "Identifier" will be the URL of our API (https://localhost:7200). Step 3 can be skipped since it was already completed in this sample project. 
-
-After that, create a Machine to Machine application that has permissions to access the registered API: [Register Machine-to-Machine Applications](https://auth0.com/docs/get-started/auth0-overview/create-applications/machine-to-machine-apps). Note that the API has no scopes that need configuring, so there won't be any listed in the "Authorize Machine to Machine Application" step.
-
-![Pasted image 20250325115429](https://github.com/user-attachments/assets/f690fc16-3e8f-4c6b-9bdd-3a4eaef6f7e4)
-
-The "Domain" field contains the value we will use for the "Authority" setting in `appsettings.json`. The Client ID will be used in the Adapter Data Source client ID setting, same with the secret. The "Token Audience" data source setting will be the "Identifier" we specified in Auth0, which comes in the bearer token and is for the receiving application (in our case, the sample API) to validate that the token is scoped correctly for it.
-
-## Adapter Configuration
-
-Import the included `AdapterConf.json` file to the Adapter Configurator utility. This will import a data ingress component that will work with the sample API, after the Auth0 endpoint and credentials are entered. 
-
-![image](https://github.com/user-attachments/assets/f1bd9d27-66fa-4e3c-a842-78113a33db94)
-
-Replace the Token Endpoint with the Auth0 authority, and paste in the client ID and client secret from the Auth0 application. The endpoint can be changed if the API is not being run on the same machine as the Adapter.
-
-For more information on the Data Source configuration, check out the documentation: [Configure AVEVA Events to CONNECT data source using the Configurator plugin](https://docs.aveva.com/bundle/events-to-connect/page/1236323.html)
-
-### Data Egress
-
-After the ingress component is imported and configured, the [adapter must be configured for data egress to CONNECT.](https://docs.aveva.com/bundle/events-to-connect/page/1252608.html)
-
-### Adapter Operation
-
-Once fully configured, the adapter automatically handles the following:
-
-1. Authentication to CONNECT
-2. It runs each "data selection" every time as scheduled, polling the API events, assets, reference data, and authorization tags and sending the corresponding OMF messages to CONNECT to actually create everything
-3. It logs any failed requests to the API to the "FailedRequests" controller
-4. It queries the "HealthCheck" controller to check the health of the API (in our case, the API only ever says it's healthy)
-
-## Running the sample
-
-The easiest way to run the sample is to open the solution in Visual Studio, and then run the configuration "https". This will serve the API locally on your machine.
-
-### Serving the API long-term
-
-Since the sample is a .NET API application, it can be hosted using IIS web server. Open the project in Visual Studio and publish it to your IIS server by clicking "Build" - "Publish "EventsToCONNECTAPISample" and following the wizard.
-
-### Testing the sample
-
-The sample includes unit and integration tests to validate its functionality. The tests can be run from the Visual Studio Test menu (Test > Run all tests). 
