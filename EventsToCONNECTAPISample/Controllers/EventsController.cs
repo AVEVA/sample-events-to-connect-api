@@ -66,19 +66,11 @@ namespace EventsToCONNECTAPISample.Controllers
                 TypeId = EventTypeId
             };
 
-            var sampleProperty = new PropertyDefinition
+            var statusProperty = new PropertyDefinition
             {
                 Id = "PumpStatus",
                 Name = "PumpStatus",
                 PropertyTypeCode = "String"
-            };
-
-            var pumpProperty = new PropertyDefinition
-            {
-                Id = "Pump",
-                Name = "Pump",
-                PropertyTypeCode = "Asset",
-                PropertyTypeId = AssetTypeId
             };
 
             var siteProperty = new PropertyDefinition
@@ -95,7 +87,7 @@ namespace EventsToCONNECTAPISample.Controllers
                 Name = EventTypeId
             };
 
-            typeDefinition.Properties.AddRange([sampleProperty, pumpProperty, siteProperty]);
+            typeDefinition.Properties.AddRange([statusProperty, siteProperty]);
 
             return Ok(new
             {

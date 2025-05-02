@@ -30,6 +30,7 @@ namespace EventsToCONNECTAPISample.Controllers
 
             var pump1 = new Asset
             {
+                AssetTypeId = AssetTypeId,
                 Id = "Pump1-EventsToCONNECT",
                 Name = "Pump1",
                 Description = "Events to CONNECT Sample Asset"
@@ -50,6 +51,7 @@ namespace EventsToCONNECTAPISample.Controllers
 
             var pump2 = new Asset
             {
+                AssetTypeId = AssetTypeId,
                 Id = "Pump2-EventsToCONNECT",
                 Name = "Pump2",
                 Description = "Events to CONNECT Sample Asset"

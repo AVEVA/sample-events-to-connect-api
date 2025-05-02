@@ -7,7 +7,7 @@
         public DateTime EndTime { get; set; }
         public string? PumpStatus { get; set; }
         public Reference? Site { get; set; }
-        public Reference? Pump { get; set; }
+        public Reference? Asset { get; set; }
     }
 
     public class Reference

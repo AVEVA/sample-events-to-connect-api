@@ -38,8 +38,8 @@ namespace EventsToCONNECTAPISample.Services
                 PumpStatus = Pump1_On ? "On" : "Off",
                 StartTime = startTime,
                 EndTime = endTime,
-                Site = new Reference { Id = "Site1" },
-                Pump = new Reference { Id = "Pump1" }
+                Site = new Reference { Id = "Site1-EventsToCONNECT" },
+                Asset = new Reference { Id = "Pump1-EventsToCONNECT" }
             };
 
             PumpEvent pump2Event = new PumpEvent
@@ -48,8 +48,8 @@ namespace EventsToCONNECTAPISample.Services
                 PumpStatus = Pump2_On ? "On" : "Off",
                 StartTime = startTime,
                 EndTime = endTime,
-                Site = new Reference { Id = "Site2" },
-                Pump = new Reference { Id = "Pump2" }
+                Site = new Reference { Id = "Site2-EventsToCONNECT" },
+                Asset = new Reference { Id = "Pump2-EventsToCONNECT" }
             };
 
             Events.Clear();
