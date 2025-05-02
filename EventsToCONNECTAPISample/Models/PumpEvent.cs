@@ -5,7 +5,7 @@
         public string? Id { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public string? Status { get; set; }
+        public string? PumpStatus { get; set; }
         public Reference? Site { get; set; }
         public Reference? Pump { get; set; }
     }

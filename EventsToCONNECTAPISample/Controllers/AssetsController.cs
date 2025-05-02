@@ -35,21 +35,43 @@ namespace EventsToCONNECTAPISample.Controllers
                 TypeId = AssetTypeId
             };
 
-            var pump1 = new PumpAsset
+            var pump1 = new Asset
             {
                 Id = "Pump1-EventsToCONNECT",
                 Name = "Pump1",
-                Model = "SB129",
-                YearBuilt = "1999",
+                Description = "Events to CONNECT Sample Asset"
             };
 
-            var pump2 = new PumpAsset
+            pump1.Metadata.AddRange([
+                new MetadataItem { 
+                    Id = "Model", 
+                    Value = "SB120", 
+                    SdsTypeCode = "String" 
+                }, 
+                new MetadataItem { 
+                    Id = "YearBuilt", 
+                    Value = "1999", 
+                    SdsTypeCode = "String" 
+                }
+            ]);
+
+            var pump2 = new Asset
             {
                 Id = "Pump2-EventsToCONNECT",
                 Name = "Pump2",
-                Model = "XJ220",
-                YearBuilt = "1994",
+                Description = "Events to CONNECT Sample Asset"
             };
+
+            pump2.Metadata.AddRange([
+                new MetadataItem { 
+                    Id = "Model", 
+                    Value = "XJ220", 
+                    SdsTypeCode = "String" }, 
+                new MetadataItem { 
+                    Id = "YearBuilt", 
+                    Value = "1994", 
+                    SdsTypeCode = "String" }
+            ]);
 
             return Ok(new
             {
@@ -70,32 +92,33 @@ namespace EventsToCONNECTAPISample.Controllers
                 TypeId = AssetTypeId
             };
 
-            var modelProperty = new PropertyDefinition
+            var modelMetadata = new MetadataDefinition
             {
                 Id = "Model",
                 Name = "Model",
-                PropertyTypeCode = "String"
+                SdsTypeCode = SdsTypeCodes.SdsString
             };
 
-            var yearBuiltProperty = new PropertyDefinition
+            var yearBuiltMetadata = new MetadataDefinition
             {
                 Id = "YearBuilt",
                 Name = "Year Built",
-                PropertyTypeCode = "String"
+                SdsTypeCode = SdsTypeCodes.SdsString
             };
 
-            var typeDefinition = new TypeDefinition
+            var assetDefinition = new AssetDefinition
             {
                 Id = AssetTypeId,
-                Name = AssetTypeId
+                Name = AssetTypeId,
+                Description = "Events to CONNECT Sample Asset Type"
             };
 
-            typeDefinition.Properties.AddRange([modelProperty, yearBuiltProperty]);
+            assetDefinition.Metadata.AddRange([modelMetadata, yearBuiltMetadata]);
 
             return Ok(new
             {
                 MessageHeaders = header,
-                MessageBody = new[] { typeDefinition }
+                MessageBody = new[] { assetDefinition }
             });
         }
     }

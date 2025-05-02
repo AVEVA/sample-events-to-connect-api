@@ -35,7 +35,7 @@ namespace EventsToCONNECTAPISample.Services
             PumpEvent pump1Event = new PumpEvent
             {
                 Id = $"Pump1-{(Pump1_On ? "On" : "Off")}-{startTime:yyyyMMddHHmmss}-EventsToCONNECT",
-                Status = Pump1_On ? "On" : "Off",
+                PumpStatus = Pump1_On ? "On" : "Off",
                 StartTime = startTime,
                 EndTime = endTime,
                 Site = new Reference { Id = "Site1" },
@@ -45,7 +45,7 @@ namespace EventsToCONNECTAPISample.Services
             PumpEvent pump2Event = new PumpEvent
             {
                 Id = $"Pump2-{(Pump2_On ? "On" : "Off")}-{startTime:yyyyMMddHHmmss}-EventsToCONNECT",
-                Status = Pump2_On ? "On" : "Off",
+                PumpStatus = Pump2_On ? "On" : "Off",
                 StartTime = startTime,
                 EndTime = endTime,
                 Site = new Reference { Id = "Site2" },

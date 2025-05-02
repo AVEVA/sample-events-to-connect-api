@@ -91,8 +91,8 @@ namespace EventsToCONNECTAPISample.Controllers
 
             var sampleProperty = new PropertyDefinition
             {
-                Id = "Sample",
-                Name = "Sample",
+                Id = "PumpStatus",
+                Name = "PumpStatus",
                 PropertyTypeCode = "String"
             };
 
