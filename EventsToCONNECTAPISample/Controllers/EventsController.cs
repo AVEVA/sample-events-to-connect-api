@@ -26,7 +26,7 @@ namespace EventsToCONNECTAPISample.Controllers
 
         // GET: api/Events
         [HttpGet]
-        public IActionResult Get(string site="")
+        public IActionResult Get(string site="", DateTime? startTime = null, DateTime? endTime = null)
         {
             var header = new MessageHeader
             {
@@ -45,6 +45,16 @@ namespace EventsToCONNECTAPISample.Controllers
             else
             {
                 events = EventsService.Events;
+            }
+
+            if (startTime.HasValue)
+            {
+                events = events.Where(e => e.StartTime >= startTime).ToList();
+            }
+
+            if (endTime.HasValue)
+            {
+                events = events.Where(e => e.EndTime <= endTime).ToList();
             }
 
             return Ok(new

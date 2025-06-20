@@ -52,7 +52,6 @@ namespace EventsToCONNECTAPISample.Services
                 Asset = new Reference { Id = "Pump2-EventsToCONNECT" }
             };
 
-            Events.Clear();
             Events.Add(pump1Event); 
             Events.Add(pump2Event);
 
