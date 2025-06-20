@@ -29,8 +29,8 @@ namespace EventsToCONNECTAPISample.Services
 
         private void GetEvents()
         {
-            var startTime = DateTime.Now.AddHours(-1);
-            var endTime = DateTime.Now;
+            var startTime = DateTime.Now;
+            var endTime = DateTime.Now.AddMinutes(1);
 
             PumpEvent pump1Event = new PumpEvent
             {
