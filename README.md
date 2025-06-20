@@ -11,7 +11,7 @@ Built with:
 
 As noted in the [AVEVA Events to CONNECT adapter documentation](https://docs.aveva.com/bundle/events-to-connect/page/1252276.html): To publish the types and events in CONNECT data services by using AVEVA Events to CONNECT, **you must create a REST API endpoint.**
 
-This is a sample API that follows the [implementation outlined in the documentation.](https://docs.aveva.com/bundle/events-to-connect/page/1252278.html) The adapter is designed to call an Auth0-protected REST API that returns events, types, and other context in a specific format.  Is built to be as simple as possible while meeting each of the requirements of the Events to CONNECT Adapter, laying groundwork that can be expanded upon to reach more data sources and output the expected messages. It uses standard practices for building .NET API applications, including simple and secure authentication with standard Microsoft libraries.
+This is a sample API that follows the [implementation outlined in the documentation.](https://docs.aveva.com/bundle/events-to-connect/page/1252278.html) The adapter is designed to call an Auth0-protected REST API that returns events, types, and other context in a specific format.  The sample API is built to be as simple as possible while meeting each of the requirements of the adapter, laying groundwork that can be expanded upon to reach more data sources and output the expected messages. It uses standard practices for building .NET API applications, including simple and secure authentication with standard Microsoft libraries.
 
 # How to run this sample
 
