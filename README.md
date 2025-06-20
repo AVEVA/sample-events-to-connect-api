@@ -180,13 +180,13 @@ GET https://localhost:7200/api/events/eventtype
 
 ### API Implementation: EventsController
 
-The `EventsController` controller holds the API controller actions. the `Get()` action returns a response message that includes the expected header and body. The body includes a list of `EventMessageBody` which we get from `EventsService.Events`, optionally filtered by site ID if the "site" parameter is not empty.
+The `EventsController` controller holds the API controller actions. the `Get()` action returns a response message that includes the expected header and body. The body includes a list of `EventMessageBody` which we get from `EventsService.Events`, optionally filtered by site ID if the "site" parameter is not empty, and optionally filtered by start and end time parameters. 
 
 **Controllers/EventsController.cs**
 ```cs
 // GET: api/Events
 [HttpGet]
-public IActionResult Get(string site="")
+public IActionResult Get(string site="", DateTime? startTime = null, DateTime? endTime = null)
 {
     var header = new MessageHeader
     {
@@ -207,6 +207,16 @@ public IActionResult Get(string site="")
         events = EventsService.Events;
     }
 
+    if (startTime.HasValue)
+    {
+        events = events.Where(e => e.StartTime >= startTime).ToList();
+    }
+
+    if (endTime.HasValue)
+    {
+        events = events.Where(e => e.EndTime <= endTime).ToList();
+    }
+
     return Ok(new
     {
         MessageHeaders = header,
@@ -216,14 +226,14 @@ public IActionResult Get(string site="")
 ```
 ### Data Simulation: EventsService
 
-The sample API's `EventsService` maintains a list of events, written as "EventMessageBody" objects. Every time `GetEvents()` is called, which happens on a 1 hour timer, it clears the events list and simply adds 3 new events for Site1, Site2, and Site3, each with a random value for "sample". The events start 1 hour in the past and end at current time.
+The sample API's `EventsService` maintains a list of events, written as "EventMessageBody" objects. Every time `GetEvents()` is called, which happens on a 10 minute timer, 2 new events are generated each with a random value for "sample". The events start at current time and have an end time of 1 minute in the future.
 
 **Services/EventsService.cs**
 ```cs
 private void GetEvents()
 {
-    var startTime = DateTime.Now.AddHours(-1);
-    var endTime = DateTime.Now;
+    var startTime = DateTime.Now;
+    var endTime = DateTime.Now.AddMinutes(1);
 
     PumpEvent pump1Event = new PumpEvent
     {
@@ -245,7 +255,6 @@ private void GetEvents()
         Asset = new Reference { Id = "Pump2-EventsToCONNECT" }
     };
 
-    Events.Clear();
     Events.Add(pump1Event); 
     Events.Add(pump2Event);
 
