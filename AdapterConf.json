@@ -43,7 +43,7 @@
       },
       {
         "resourceId": "EventsResource",
-        "queryId": "SiteParameterQuery",
+        "queryId": "TimeParameterQuery",
         "scheduleId": "Schedule001",
         "type": "Events",
         "action": "Create",
@@ -175,6 +175,10 @@
       {
         "queryId": "BaseQuery",
         "queryString": "/"
+      },
+      {
+        "queryId": "TimeParameterQuery",
+        "queryString": "?startTime=?ST?"
       }
     ],
     "HistoryRecoveries": []
