@@ -53,10 +53,10 @@ jobs:
       demands: ${{ parameters.containerDemands }}
     steps:
       - task: UseDotNet@2
-        displayName: 'Install dotnet 6'
+        displayName: 'Install dotnet 8'
         inputs:
           packageType: 'sdk'
-          version: '6.x'
+          version: '8.x'
           
       - task: DotNetCoreCLI@2
         displayName: 'Nuget restore'
