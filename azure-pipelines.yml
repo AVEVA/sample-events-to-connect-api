@@ -52,10 +52,6 @@ jobs:
       name: ${{ parameters.pool }}
       demands: ${{ parameters.containerDemands }}
     steps:
-      - template: '/miscellaneous/build_templates/appsettings.yml@templates'
-        parameters:
-          secrets: 'ClientSecret, ClientId, TenantId, Resource'
-
       - task: UseDotNet@2
         displayName: 'Install dotnet 6'
         inputs:
