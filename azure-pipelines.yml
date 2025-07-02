@@ -1,34 +1,96 @@
-# ASP.NET
-# Build and test ASP.NET projects.
-# Add steps that publish symbols, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
-
 trigger:
-- main
+  batch: true
+  branches:
+    include:
+      - main
 
-pool:
-  vmImage: 'windows-latest'
+pr:
+  branches:
+    include:
+      - main
+
+schedules:
+  - cron: '0 0 * * 0'
+    displayName: Weekly build
+    branches:
+      include:
+        - main
+    always: true
+
+resources:
+  repositories:
+    - repository: ArchitectureRepo
+      type: git
+      name: Architecture/Architecture
+      ref: refs/heads/main
+    - repository: templates
+      type: github
+      name: AVEVA/AVEVA-Samples
+      endpoint: AVEVA
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  - name: analysisProject
+    value: EventsAdapterSampleAPI
 
-steps:
-- task: NuGetToolInstaller@1
+parameters:
+  - name: pool
+    default: DevOps-Managed-Ubt22-Mdp
+  - name: containerDemands
+    type: object
+    default: ['Agent.OS -equals $(agentOS)']
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
+jobs:
+  - job: Tests
+    condition: ne(variables['Build.Reason'], 'Schedule')
+    strategy:
+      matrix:
+        linux:
+          agentOS: Linux
+        windows:
+          agentOS: Windows_NT
+    pool:
+      name: ${{ parameters.pool }}
+      demands: ${{ parameters.containerDemands }}
+    steps:
+      - template: '/miscellaneous/build_templates/appsettings.yml@templates'
+        parameters:
+          secrets: 'ClientSecret, ClientId, TenantId, Resource'
 
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+      - task: UseDotNet@2
+        displayName: 'Install dotnet 6'
+        inputs:
+          packageType: 'sdk'
+          version: '6.x'
+          
+      - task: DotNetCoreCLI@2
+        displayName: 'Nuget restore'
+        inputs:
+          command: restore
 
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+      - task: DotNetCoreCLI@2
+        displayName: 'Run tests'
+        inputs:
+          command: test
+          publishTestResults: true
+          testRunTitle: '$(Agent.JobName) on $(Agent.OS)'
+
+  - template: '/miscellaneous/build_templates/code-analysis.yml@templates'
+    parameters:
+      buildSteps:
+        - task: UseDotNet@2
+          displayName: 'Install dotnet 6'
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Nuget restore'
+          inputs:
+            command: restore
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Build'
+          inputs:
+            command: build
+
+        - template: '/miscellaneous/build_templates/binskim.yml@templates'
